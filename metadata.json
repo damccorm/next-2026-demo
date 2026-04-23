@@ -1,0 +1,24 @@
+{
+  "name": "PubSub Sentiment Analysis",
+  "description": "A pipeline that reads a topic from PubSub, runs sentiment analysis, and logs results.",
+  "parameters": [
+    {
+      "name": "input_topic",
+      "label": "Input Pub/Sub Topic",
+      "helpText": "The Pub/Sub topic to read from. Format: projects/<project>/topics/<topic>",
+      "isOptional": false,
+      "regexes": [
+        "projects/[^/]+/topics/[^/]+"
+      ]
+    },
+    {
+      "name": "inference_backend",
+      "label": "Inference Backend",
+      "helpText": "Which backend to use for remediation inference. Use 'gemma' to run Gemma locally via vLLM on a GPU worker, or 'gemini' to call the Gemini API via Vertex AI.",
+      "isOptional": true,
+      "regexes": [
+        "^(gemma|gemini)$"
+      ]
+    }
+  ]
+}

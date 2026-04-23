@@ -1,0 +1,340 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Pipeline Data Flow — Mermaid Editor</title>
+  <script src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"></script>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap"
+    rel="stylesheet" />
+  <style>
+    *,
+    *::before,
+    *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    :root {
+      --bg: #0f1117;
+      --surface: #1a1d27;
+      --surface2: #22263a;
+      --border: #2e3350;
+      --accent: #6c8ef7;
+      --accent2: #a78bfa;
+      --text: #e2e8f0;
+      --text-muted: #8892b0;
+      --error: #f87171;
+      --success: #34d399;
+      --gutter: 16px;
+    }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    header {
+      padding: 12px 20px;
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      flex-shrink: 0;
+    }
+
+    header h1 {
+      font-size: 15px;
+      font-weight: 600;
+      background: linear-gradient(90deg, var(--accent), var(--accent2));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .status {
+      font-size: 12px;
+      font-weight: 500;
+      padding: 4px 10px;
+      border-radius: 20px;
+      transition: all 0.3s;
+    }
+
+    .status.ok {
+      background: rgba(52, 211, 153, .15);
+      color: var(--success);
+    }
+
+    .status.err {
+      background: rgba(248, 113, 113, .15);
+      color: var(--error);
+    }
+
+    .copy-btn {
+      font-size: 12px;
+      font-weight: 500;
+      padding: 5px 14px;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+      background: var(--surface2);
+      color: var(--text-muted);
+      cursor: pointer;
+      transition: all .2s;
+    }
+
+    .copy-btn:hover {
+      border-color: var(--accent);
+      color: var(--accent);
+    }
+
+    .workspace {
+      display: flex;
+      flex: 1;
+      overflow: hidden;
+    }
+
+    /* ── Editor pane ── */
+    .editor-pane {
+      width: 38%;
+      min-width: 260px;
+      display: flex;
+      flex-direction: column;
+      border-right: 1px solid var(--border);
+      background: var(--surface);
+    }
+
+    .pane-label {
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      padding: 8px 14px;
+      border-bottom: 1px solid var(--border);
+      flex-shrink: 0;
+    }
+
+    textarea {
+      flex: 1;
+      resize: none;
+      border: none;
+      outline: none;
+      background: transparent;
+      color: var(--text);
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 13px;
+      line-height: 1.7;
+      padding: 16px;
+      tab-size: 4;
+    }
+
+    .error-bar {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 12px;
+      color: var(--error);
+      background: rgba(248, 113, 113, .08);
+      border-top: 1px solid rgba(248, 113, 113, .25);
+      padding: 8px 14px;
+      white-space: pre-wrap;
+      word-break: break-all;
+      max-height: 90px;
+      overflow-y: auto;
+      flex-shrink: 0;
+      display: none;
+    }
+
+    .error-bar.visible {
+      display: block;
+    }
+
+    /* ── Preview pane ── */
+    .preview-pane {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    .preview-scroll {
+      flex: 1;
+      overflow: auto;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 32px;
+    }
+
+    #diagram-output svg {
+      max-width: 100%;
+      height: auto;
+      filter: drop-shadow(0 4px 24px rgba(0, 0, 0, .5));
+    }
+
+    /* Drag handle */
+    .drag-handle {
+      width: 4px;
+      cursor: col-resize;
+      background: var(--border);
+      transition: background .2s;
+      flex-shrink: 0;
+    }
+
+    .drag-handle:hover,
+    .drag-handle.dragging {
+      background: var(--accent);
+    }
+  </style>
+</head>
+
+<body>
+
+  <header>
+    <h1>⬡ Pipeline Data Flow — Mermaid Editor</h1>
+    <div style="display:flex;align-items:center;gap:10px">
+      <span id="status" class="status ok">✓ Valid</span>
+      <button class="copy-btn" id="copy-btn">Copy source</button>
+    </div>
+  </header>
+
+  <div class="workspace">
+    <div class="editor-pane" id="editor-pane">
+      <div class="pane-label">Mermaid source</div>
+      <textarea id="editor" spellcheck="false"></textarea>
+      <div class="error-bar" id="error-bar"></div>
+    </div>
+
+    <div class="drag-handle" id="drag-handle"></div>
+
+    <div class="preview-pane">
+      <div class="pane-label">Live preview</div>
+      <div class="preview-scroll">
+        <div id="diagram-output"></div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    mermaid.initialize({
+      startOnLoad: false,
+      theme: 'dark',
+      securityLevel: 'loose',
+      flowchart: { curve: 'basis', padding: 20 },
+    });
+
+    const DEFAULT = `flowchart TD
+    PS(["\`☁️ Google Cloud Pub/Sub
+(input_topic)\`"])
+    Sentiment["\`Sentiment Analysis (RunInference)\`"]
+    Filter["\`**FilterNegative**\`"]
+    Discard(["\`🗑️ Dropped
+(POSITIVE / NEUTRAL)\`"])
+
+    Backend{{"\`inference_backend
+param\`"}}
+
+    GeminiInfer["\`GeminiInference
+(RunInference)\`"]
+    GemmaInfer["\`GemmaInference
+(RunInference via vLLM on T4 GPU)\`"]
+
+    Log["\`LogGemmaResponse
+→ Cloud Logging\`"]
+
+    PS --> Sentiment
+    Sentiment -->|PredictionResult| Filter
+    Filter -->|label != NEGATIVE| Discard
+    Filter -->|"\`label == NEGATIVE\`"| Backend
+
+    Backend -->|gemini| GeminiInfer
+    Backend -->|gemma default| GemmaInfer
+
+    GeminiInfer -->|remediation action| Log
+    GemmaInfer -->|remediation action| Log
+
+    style PS fill:#4285F4,color:#fff
+    style Discard fill:#555,color:#ccc
+    style GeminiInfer fill:#34A853,color:#fff
+    style GemmaInfer fill:#EA4335,color:#fff
+    style Backend fill:#FBBC05,color:#000
+    style Log fill:#4285F4,color:#fff`;
+
+    const editor = document.getElementById('editor');
+    const output = document.getElementById('diagram-output');
+    const statusEl = document.getElementById('status');
+    const errorBar = document.getElementById('error-bar');
+
+    editor.value = DEFAULT;
+
+    let renderTimer = null;
+    let renderId = 0;
+
+    async function render(src) {
+      const id = ++renderId;
+      try {
+        const { svg } = await mermaid.render('mg-' + id, src);
+        if (id !== renderId) return; // stale
+        output.innerHTML = svg;
+        statusEl.textContent = '✓ Valid';
+        statusEl.className = 'status ok';
+        errorBar.classList.remove('visible');
+      } catch (e) {
+        if (id !== renderId) return;
+        statusEl.textContent = '✕ Error';
+        statusEl.className = 'status err';
+        errorBar.textContent = e.message || String(e);
+        errorBar.classList.add('visible');
+      }
+    }
+
+    editor.addEventListener('input', () => {
+      clearTimeout(renderTimer);
+      renderTimer = setTimeout(() => render(editor.value), 350);
+    });
+
+    // Copy button
+    document.getElementById('copy-btn').addEventListener('click', () => {
+      navigator.clipboard.writeText(editor.value).then(() => {
+        const btn = document.getElementById('copy-btn');
+        btn.textContent = 'Copied!';
+        setTimeout(() => btn.textContent = 'Copy source', 1500);
+      });
+    });
+
+    // Drag-to-resize panes
+    const handle = document.getElementById('drag-handle');
+    const editorPane = document.getElementById('editor-pane');
+    let dragging = false;
+
+    handle.addEventListener('mousedown', e => {
+      dragging = true;
+      handle.classList.add('dragging');
+      e.preventDefault();
+    });
+    window.addEventListener('mousemove', e => {
+      if (!dragging) return;
+      const workspace = editorPane.parentElement;
+      const rect = workspace.getBoundingClientRect();
+      const pct = ((e.clientX - rect.left) / rect.width * 100).toFixed(1);
+      editorPane.style.width = Math.min(70, Math.max(20, pct)) + '%';
+    });
+    window.addEventListener('mouseup', () => {
+      dragging = false;
+      handle.classList.remove('dragging');
+    });
+
+    // Initial render
+    render(DEFAULT);
+  </script>
+</body>
+
+</html>

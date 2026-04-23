@@ -1,0 +1,8 @@
+apache-beam[gcp,vllm]==2.72.0
+transformers<5.0.0
+torch
+tensorflow
+tf-keras
+vllm
+openai
+hf_transfer

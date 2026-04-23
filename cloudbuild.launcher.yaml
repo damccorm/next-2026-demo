@@ -1,0 +1,13 @@
+steps:
+  - name: 'gcr.io/cloud-builders/docker'
+    args:
+      - 'build'
+      - '-t'
+      - '$_LAUNCHER_IMAGE'
+      - '-f'
+      - 'Dockerfile.launcher'
+      - '--build-arg'
+      - 'SDK_IMAGE=$_SDK_IMAGE'
+      - '.'
+images:
+  - '$_LAUNCHER_IMAGE'

@@ -1,0 +1,8 @@
+# Launcher image for the Flex Template.
+# Builds on the SDK/worker image so it has all the same dependencies,
+# but overrides the entrypoint to use the Dataflow template launcher.
+ARG SDK_IMAGE
+FROM ${SDK_IMAGE}
+
+# Use the Flex Template launcher as the entrypoint for the launcher container.
+ENTRYPOINT ["/opt/google/dataflow/python_template_launcher"]
