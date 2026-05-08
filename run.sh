@@ -1,16 +1,17 @@
 #!/bin/bash
 set -e
 
-# Configuration
-PROJECT="google.com:clouddfe"
-SANITIZED_PROJECT="clouddfe"
-PREFIX="danny-test"
+# Configuration: Update these before running the script
+PROJECT="bigdatapivot"
 REGION="us-central1"
+ARTIFACT_REGISTRY_REPO="${REGION}-docker.pkg.dev/bigdatapivot/dannymccormick-demo-test"
+# End configuration: You can leave all variables below this line unchanged
 
+PREFIX="sentiment-analysis-demo" # Unique prefix for your particular run. You can optionally configure this.
+IMAGE_NAME="${ARTIFACT_REGISTRY_REPO}/${PREFIX}-template:latest"
+LAUNCHER_IMAGE_NAME="${ARTIFACT_REGISTRY_REPO}/${PREFIX}-launcher:latest"
 TOPIC_NAME="${PREFIX}-sentiment-topic"
-IMAGE_NAME="${REGION}-docker.pkg.dev/google.com/clouddfe/dannymccormick-test/${PREFIX}-sentiment-template:latest"
-LAUNCHER_IMAGE_NAME="${REGION}-docker.pkg.dev/google.com/clouddfe/dannymccormick-test/${PREFIX}-sentiment-launcher:latest"
-BUCKET_NAME="${PREFIX}-${SANITIZED_PROJECT}-flex-templates"
+BUCKET_NAME="${PREFIX}-flex-templates"
 BUCKET_URL="gs://${BUCKET_NAME}"
 TEMPLATE_PATH="${BUCKET_URL}/templates/sentiment-metadata.json"
 TEMP_LOCATION="${BUCKET_URL}/temp"
@@ -63,7 +64,7 @@ fi
 
 if [ "$BUILD_TEMPLATE" = true ]; then
     echo "Building custom Flex Template SDK/worker image..."
-    # gcloud builds submit --tag $IMAGE_NAME --project $PROJECT .
+    gcloud builds submit --tag $IMAGE_NAME --project $PROJECT .
 
     echo "Building Flex Template launcher image..."
     gcloud builds submit \

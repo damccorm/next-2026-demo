@@ -12,18 +12,17 @@ It supports two inference backends:
 - **Docker** installed for local testing or custom image modification.
 - A **Hugging Face Token** with access to gated models (e.g., Gemma).
 
+### Setup
+
+To set up your project so that it is ready to run:
+
+1. Replace `"your_hf_token_here"` in the Dockerfile with your actual Hugging Face Token.
+2. Create an Artifact Registry repository to host your template image.
+3. Update the `run.sh` script with your project's unique configuration
+
 ## Building the Flex Templates
 
 The worker environment requires a custom Docker image that ships the CUDA drivers and Dataflow dependencies. This project uses Cloud Build to construct the images and push them to your Artifact Registry.
-
-Because `gemma-2b-it` requires authorization, you must provide your Hugging Face Token as a build argument so that the layer cache can bake the weights into your Docker image. This dramatically improves worker startup times.
-
-To build manually:
-```bash
-export HF_TOKEN="your_hf_token_here"
-docker build --build-arg HF_TOKEN=${HF_TOKEN} -t your-registry/your-image:latest .
-docker push your-registry/your-image:latest
-```
 
 ## Deployment
 

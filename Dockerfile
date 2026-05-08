@@ -28,7 +28,7 @@ WORKDIR ${WORKDIR}
 COPY requirements.txt .
 
 ENV FLEX_TEMPLATE_PYTHON_PY_FILE="${WORKDIR}/pipeline.py"
-ARG HF_TOKEN
+ENV HF_TOKEN="your_hf_token_here"
 
 # Upgrade pip and install the requirements
 RUN pip install --no-cache-dir --upgrade pip setuptools wheel \

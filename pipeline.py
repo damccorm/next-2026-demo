@@ -85,7 +85,7 @@ def run(argv=None):
         if known_args.inference_backend == 'gemini':
             logging.info("Using Gemini (Vertex AI) as inference backend.")
             gemini_handler = GeminiModelHandler(
-                model_name='gemini-2.0-flash-001',
+                model_name='gemini-2.5-flash',
                 request_fn=generate_from_string,
                 project=pipeline_options.get_all_options().get('project'),
                 location='us-central1',
