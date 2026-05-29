@@ -45,7 +45,7 @@ COPY pipeline.py .
 
 # Copy the Apache Beam worker dependencies from the Beam Python 3.11 SDK image
 # This sets up the worker entrypoint at /opt/apache/beam/boot
-COPY --from=apache/beam_python3.11_sdk:2.72.0 /opt/apache/beam /opt/apache/beam
+COPY --from=apache/beam_python3.11_sdk:2.73.0 /opt/apache/beam /opt/apache/beam
 
 # Copy the Flex Template launcher from the Dataflow launcher base image.
 # This is used when the image is run as a Flex Template launcher.

@@ -14,11 +14,35 @@
     {
       "name": "inference_backend",
       "label": "Inference Backend",
-      "helpText": "Which backend to use for remediation inference. Use 'gemma' to run Gemma locally via vLLM on a GPU worker, or 'gemini' to call the Gemini API via Vertex AI.",
+      "helpText": "Which backend to use for remediation inference. Use 'gemma' to run Gemma locally via vLLM on a GPU worker, 'gemini' to call the Gemini API via Vertex AI, or 'adk' to run an ADK agent via the Agent Development Kit.",
       "isOptional": true,
       "regexes": [
-        "^(gemma|gemini)$"
+        "^(gemma|gemini|adk)$"
       ]
+    },
+    {
+      "name": "user_access_token",
+      "label": "User Access Token",
+      "helpText": "OAuth token for Gmail API",
+      "isOptional": true
+    },
+    {
+      "name": "user_refresh_token",
+      "label": "User Refresh Token",
+      "helpText": "OAuth refresh token for Gmail API",
+      "isOptional": true
+    },
+    {
+      "name": "user_client_id",
+      "label": "User Client ID",
+      "helpText": "OAuth client ID for Gmail API",
+      "isOptional": true
+    },
+    {
+      "name": "user_client_secret",
+      "label": "User Client Secret",
+      "helpText": "OAuth client secret for Gmail API",
+      "isOptional": true
     }
   ]
 }

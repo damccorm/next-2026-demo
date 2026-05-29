@@ -246,8 +246,9 @@ param\`"}}
 (RunInference)\`"]
     GemmaInfer["\`GemmaInference
 (RunInference via vLLM on T4 GPU)\`"]
+    AdkInfer["\`Adk Agent (RunInference)\`"]
 
-    Log["\`LogGemmaResponse
+    Log["\`LogResponse
 → Cloud Logging\`"]
 
     PS --> Sentiment
@@ -256,15 +257,18 @@ param\`"}}
     Filter -->|"\`label == NEGATIVE\`"| Backend
 
     Backend -->|gemini| GeminiInfer
-    Backend -->|gemma default| GemmaInfer
+    Backend -->|Gemma| GemmaInfer
+    Backend -->|Adk| AdkInfer
 
     GeminiInfer -->|remediation action| Log
     GemmaInfer -->|remediation action| Log
+    AdkInfer -->|remediation action| Log
 
     style PS fill:#4285F4,color:#fff
     style Discard fill:#555,color:#ccc
     style GeminiInfer fill:#34A853,color:#fff
     style GemmaInfer fill:#EA4335,color:#fff
+    style AdkInfer fill:#34A853,color:#fff
     style Backend fill:#FBBC05,color:#000
     style Log fill:#4285F4,color:#fff`;
 
